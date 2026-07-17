@@ -1,0 +1,137 @@
+:root {
+  --bg: #0f1117;
+  --panel: #171a22;
+  --panel-2: #1f2330;
+  --line: #2a2f3d;
+  --text: #e6e9f0;
+  --muted: #9aa3b2;
+  --accent: #5b8cff;
+  --accent-2: #2b2620;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+.header .logo {
+  width: 46px; height: 46px; border-radius: 12px;
+  background: var(--panel-2);
+  display: grid; place-items: center;
+  font-family: 'Courier New', monospace; font-weight: 700;
+  color: var(--accent); border: 1px solid var(--line);
+}
+.header h1 { font-size: 24px; margin: 0; letter-spacing: 0.3px; }
+.header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 22px;
+  margin-top: 24px;
+}
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px;
+}
+.panel h2 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 1.4px;
+  color: var(--muted); margin: 0 0 12px;
+}
+.panel h2:not(:first-child) { margin-top: 22px; }
+
+.drop {
+  border: 1.5px dashed var(--line);
+  border-radius: 14px;
+  padding: 26px 16px;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  font-size: 14px;
+}
+.drop.drag { border-color: var(--accent); background: rgba(91,140,255,.08); }
+.drop strong { color: var(--text); }
+.samples { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.samples button {
+  flex: 1; min-width: 70px; padding: 8px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--panel-2);
+  color: var(--text); font-size: 12px; cursor: pointer;
+}
+.samples button:hover { border-color: var(--accent); }
+
+.group { display: flex; flex-direction: column; gap: 8px; }
+.chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--panel-2);
+  color: var(--text); font-size: 13px; text-align: left;
+}
+.chip:hover { border-color: var(--accent); }
+.chip.active { border-color: var(--accent); background: rgba(91,140,255,.14); }
+.chip .dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--line); flex: none;
+}
+.chip.active .dot { border-color: var(--accent); background: var(--accent); }
+.chip .preview { font-family: 'Courier New', monospace; color: var(--muted); margin-left: auto; font-size: 12px; }
+
+.slider { display: flex; flex-direction: column; gap: 6px; }
+.slider label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.slider label b { color: var(--text); font-weight: 600; }
+.slider input[type=range] { width: 100%; accent-color: var(--accent); }
+
+.stage {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+  min-height: 360px;
+}
+.canvas-wrap {
+  flex: 1; border-radius: 12px; overflow: auto;
+  background:
+    linear-gradient(45deg,#1a1d27 25%,transparent 25%) 0 0/24px 24px,
+    linear-gradient(-45deg,#1a1d27 25%,transparent 25%) 0 0/24px 24px,
+    linear-gradient(45deg,transparent 75%,#1a1d27 75%) 0 0/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#1a1d27 75%) 0 0/24px 24px,
+    #14171f;
+  display: grid; place-items: center; padding: 8px;
+}
+.canvas-wrap canvas { max-width: 100%; height: auto; image-rendering: pixelated; }
+.placeholder { color: var(--muted); font-size: 14px; text-align:center; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--text); font-size: 13px; cursor: pointer;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #0b1020; font-weight: 600; }
+
+.footer { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: center; }
