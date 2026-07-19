@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Poster Studio — build + commit master + deploy GitHub Pages (gh-pages branch).
-# Run ONLY after the visual-parity restyle is complete in the working tree.
+# Run ONLY after the full 1:1 rebuild + mobile verification is complete in the working tree.
 set -euo pipefail
 
 REPO=/home/thinkpad/Data/20_Projects/POSTER_STUDIO
@@ -15,7 +15,7 @@ git add -A
 if git diff --cached --quiet; then
   echo "  nothing to commit on master"
 else
-  git commit -m "feat: 1:1 visual parity restyle (centered dark single-column)"
+  git commit -m "feat: full 1:1 functional rebuild — 61 shaders, transform/appearance/adjust panels, presets, undo/redo, zh/en toggle, export code; mobile 44px tap targets"
 fi
 git push origin master
 
