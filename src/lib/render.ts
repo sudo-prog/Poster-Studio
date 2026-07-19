@@ -221,4 +221,135 @@ function isPaperLight(hex: string): boolean {
   return (r + g + b) / 3 > 128
 }
 
+// ---------- Text + Image layer rendering (Tasks B & C) ----------
+
+// Draw a text layer onto ctx. Coordinates are in the output canvas space.
+export function renderTextLayer(
+  ctx: CanvasRenderingContext2D,
+  layer: import('./types').TextLayer,
+  cx: number,
+  cy: number,
+): void {
+  const p = layer.props
+  const tf = layer.transform
+  ctx.save()
+  ctx.globalAlpha = clamp(layer.opacity / 100, 0, 1)
+  ctx.translate(cx + tf.x, cy + tf.y)
+  ctx.rotate((tf.rotation * Math.PI) / 180)
+  ctx.scale(tf.scale, tf.scale)
+
+  const style = `${p.italic ? 'italic ' : ''}${p.bold ? '700 ' : '400 '}${p.fontSize}px ${p.fontFamily}`
+  ctx.font = style
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.lineJoin = 'round'
+
+  // Drop shadow
+  if (p.shadowEnabled) {
+    ctx.shadowColor = p.shadowColor
+    ctx.shadowBlur = p.shadowBlur
+    ctx.shadowOffsetX = p.shadowX
+    ctx.shadowOffsetY = p.shadowY
+  } else {
+    ctx.shadowColor = 'transparent'
+    ctx.shadowBlur = 0
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = 0
+  }
+
+  const lines = p.text.split('\n')
+  const lineH = p.fontSize * 1.2
+  const startY = -((lines.length - 1) * lineH) / 2
+
+  lines.forEach((line, i) => {
+    const y = startY + i * lineH
+    if (p.strokeEnabled && p.strokeWidth > 0) {
+      ctx.strokeStyle = p.strokeColor
+      ctx.lineWidth = p.strokeWidth
+      ctx.strokeText(line, 0, y)
+    }
+    ctx.fillStyle = p.fill
+    ctx.fillText(line, 0, y)
+  })
+
+  ctx.restore()
+}
+
+// Draw an image layer onto ctx (the source picture, un-converted).
+export function renderImageLayer(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLCanvasElement | HTMLImageElement | null,
+  layer: import('./types').ImageLayer,
+  cx: number,
+  cy: number,
+  baseW: number,
+  baseH: number,
+): void {
+  if (!img) return
+  ctx.save()
+  ctx.globalAlpha = clamp(layer.opacity / 100, 0, 1)
+  ctx.translate(cx + layer.transform.x, cy + layer.transform.y)
+  ctx.rotate((layer.transform.rotation * Math.PI) / 180)
+  ctx.scale(layer.transform.scale, layer.transform.scale)
+  // Fit the image to the base poster size, centered.
+  const iw = img.width || baseW
+  const ih = img.height || baseH
+  ctx.drawImage(img, -iw / 2, -ih / 2, iw, ih)
+  ctx.restore()
+}
+
+// ---------- Compositor (Task C) ----------
+// Renders the full layered poster into a single canvas.
+export interface CompositeResult {
+  canvas: HTMLCanvasElement
+  width: number
+  height: number
+}
+
+export function compositePoster(
+  src: HTMLCanvasElement | null,
+  opts: EditorState,
+  layers: import('./types').Layer[],
+  imageSource: HTMLCanvasElement | null,
+): CompositeResult {
+  // 1) Render the ascii base from source + opts.
+  let asciiCanvas: HTMLCanvasElement
+  if (src) {
+    asciiCanvas = renderPoster(src, opts).canvas
+  } else {
+    asciiCanvas = document.createElement('canvas')
+    asciiCanvas.width = 600
+    asciiCanvas.height = 600
+  }
+  const W = asciiCanvas.width
+  const H = asciiCanvas.height
+  const out = document.createElement('canvas')
+  out.width = W
+  out.height = H
+  const ctx = out.getContext('2d')!
+  ctx.imageSmoothingQuality = 'high'
+
+  const cx = W / 2
+  const cy = H / 2
+
+  for (const layer of layers) {
+    if (!layer.visible) continue
+    if (layer.type === 'ascii') {
+      ctx.save()
+      ctx.globalAlpha = clamp(layer.opacity / 100, 0, 1)
+      ctx.translate(cx + layer.transform.x, cy + layer.transform.y)
+      ctx.rotate((layer.transform.rotation * Math.PI) / 180)
+      ctx.scale(layer.transform.scale, layer.transform.scale)
+      ctx.drawImage(asciiCanvas, -W / 2, -H / 2, W, H)
+      ctx.restore()
+    } else if (layer.type === 'image') {
+      renderImageLayer(ctx, imageSource, layer, cx, cy, W, H)
+    } else if (layer.type === 'text') {
+      renderTextLayer(ctx, layer, cx, cy)
+    }
+  }
+
+  return { canvas: out, width: W, height: H }
+}
+
 export { DEFAULT_STATE }

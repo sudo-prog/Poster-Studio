@@ -153,3 +153,70 @@ export interface EditorState {
   presetId: string
   randomSeed: number
 }
+
+// ---------- Layers system (Task C) ----------
+
+export type LayerType = 'ascii' | 'image' | 'text'
+
+export interface LayerTransform {
+  x: number // canvas px offset from center
+  y: number
+  scale: number // 1 = 100%
+  rotation: number // degrees
+}
+
+export interface AsciiLayerProps {
+  // The ASCII conversion is driven by the global EditorState controls
+  // (charset, shader, transform, appearance, adjust). No extra props.
+}
+
+export interface ImageLayerProps {
+  // Image layer renders the source image directly (un-converted).
+}
+
+export interface TextLayerProps {
+  text: string
+  fontFamily: string // system + uploaded font names
+  fontSize: number // px (baseline, before layer scale)
+  fill: string // fill color
+  strokeEnabled: boolean
+  strokeColor: string
+  strokeWidth: number // px
+  shadowEnabled: boolean
+  shadowColor: string
+  shadowBlur: number
+  shadowX: number
+  shadowY: number
+  bold: boolean
+  italic: boolean
+}
+
+export interface BaseLayer {
+  id: string
+  type: LayerType
+  name: string
+  visible: boolean
+  opacity: number // 0..100
+  transform: LayerTransform
+  // zOrder implied by array index in LayersState.layers (0 = bottom)
+  props: AsciiLayerProps | ImageLayerProps | TextLayerProps
+}
+
+export interface AsciiLayer extends BaseLayer {
+  type: 'ascii'
+  props: AsciiLayerProps
+}
+export interface ImageLayer extends BaseLayer {
+  type: 'image'
+  props: ImageLayerProps
+}
+export interface TextLayer extends BaseLayer {
+  type: 'text'
+  props: TextLayerProps
+}
+export type Layer = AsciiLayer | ImageLayer | TextLayer
+
+export interface LayersState {
+  layers: Layer[]
+  selectedId: string | null
+}
