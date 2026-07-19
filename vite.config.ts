@@ -3,7 +3,11 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // Poster Studio — Vite + React + TS, fully client-side, installable & offline PWA.
+// base must match the GitHub Pages project path: https://<user>.github.io/<repo>/
+const BASE_PATH = process.env.BASE_PATH ?? '/Poster-Studio/'
+
 export default defineConfig({
+  base: BASE_PATH,
   plugins: [
     react(),
     VitePWA({
